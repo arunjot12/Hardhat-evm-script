@@ -4,7 +4,12 @@ async function main() {
     const proxy = "0x248e9889986E13f4fD8A5852122C80C75e744E99";
     const mytoken = await ethers.getContractFactory("MyToken");
     const contract = await mytoken.attach(proxy);
-
+    console.log("Available methods on the contract:");
+    contract.interface.fragments.forEach(fragment => {
+        if (fragment.type === "function") {
+        console.log(`${fragment.name}(${fragment.inputs.map(input => input.type).join(", ")})`);
+        }
+    });
     //minting the tokens
     mint = async (account,id,supply,data) => {
         await contract.mint(account,id,supply,data);

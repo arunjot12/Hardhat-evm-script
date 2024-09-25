@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Compatible with OpenZeppelin Contracts ^5.0.0
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
@@ -25,13 +25,13 @@ contract MyToken is Initializable, ERC1155Upgradeable, AccessControlUpgradeable,
     }
 
     function initialize(address defaultAdmin, address manager,string memory _name,string memory _symbol) initializer public {
-        __ERC1155_init("https://hello/world/");
+        __ERC1155_init("https://ipfsget.pstuff.net/ipfs/");
         __AccessControl_init();
         __ERC1155Burnable_init();
         __ERC1155Supply_init();
         name = _name;
         symbol = _symbol;
-        base_uri = "https://hello/world/";
+        base_uri = "https://ipfsget.pstuff.net/ipfs/";
         next_id = 0;
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
         _grantRole(MANAGER, manager);
@@ -85,9 +85,10 @@ contract MyToken is Initializable, ERC1155Upgradeable, AccessControlUpgradeable,
 
     function burn(address account,uint256 id,uint256 value) public override(ERC1155BurnableUpgradeable) {
         require(_exists(id),"ERC1155Metadata: burn query for nonexistent token");
-        if (account != _msgSender() && !isApprovedForAll(account, _msgSender())) {
-            revert ERC1155MissingApprovalForAll(_msgSender(), account);
-        }
+        require(
+            account == _msgSender() || isApprovedForAll(account, _msgSender()),
+            "ERC1155: caller is not token owner or approved"
+        );
 
         _burn(account, id, value);
     }
@@ -97,18 +98,21 @@ contract MyToken is Initializable, ERC1155Upgradeable, AccessControlUpgradeable,
             require(_exists(ids[i]),"ERC1155Metadata: burn query for nonexistent token");
         }
 
-        if (account != _msgSender() && !isApprovedForAll(account, _msgSender())) {
-            revert ERC1155MissingApprovalForAll(_msgSender(), account);
-        }
+        require(
+            account == _msgSender() || isApprovedForAll(account, _msgSender()),
+            "ERC1155: caller is not token owner or approved"
+        );
+
         _burnBatch(account, ids, values);
     }
 
-    function _update(address from, address to, uint256[] memory ids, uint256[] memory values)
+    function _beforeTokenTransfer(address operator, address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
         internal
         override(ERC1155Upgradeable, ERC1155SupplyUpgradeable)
     {
-        super._update(from, to, ids, values);
+        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
+    
 
     function supportsInterface(bytes4 interfaceId)
         public

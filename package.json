@@ -14,9 +14,9 @@
     "@nomicfoundation/hardhat-verify": "^2.0.5",
     "chai": "^4.4.1",
     "ethers": "^6.11.1",
-    "hardhat": "^2.22.2"
+    "hardhat": "^2.22.12"
   },
   "dependencies": {
-    "@openzeppelin/contracts-upgradeable": "^5.0.2"
+    "@openzeppelin/contracts-upgradeable": "4.9.6"
   }
 }
